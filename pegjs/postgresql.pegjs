@@ -976,6 +976,7 @@ alter_action_list
 alter_action
   = ALTER_ADD_COLUMN
   / ALTER_DROP_COLUMN
+  / ALTER_ADD_CONSTRAINT
   / ALTER_ADD_INDEX_OR_KEY
   / ALTER_ADD_FULLETXT_SPARITAL_INDEX
   / ALTER_RENAME_TABLE
@@ -1019,6 +1020,17 @@ ALTER_DROP_COLUMN
         column: c,
         keyword: kc,
         resource: 'column',
+        type: 'alter',
+      }
+    }
+
+
+ALTER_ADD_CONSTRAINT
+  = KW_ADD __ c:create_constraint_definition {
+      return {
+        action: 'add',
+        create_definitions: c,
+        resource: 'constraint',
         type: 'alter',
       }
     }
@@ -1261,10 +1273,10 @@ reference_definition
   }
 
 on_reference
-  = kw: ('ON DELETE'i / 'ON UPDATE'i) ___ ro:reference_option {
+  = on_kw:'ON'i __ kw: ('DELETE'i / 'UPDATE'i) __ ro:reference_option {
     // => { type: 'on delete' | 'on update'; value: reference_option; }
     return {
-      type: kw.toLowerCase(),
+      type: `${on_kw.toLowerCase()} ${kw.toLowerCase()}`,
       value: ro
     }
   }
